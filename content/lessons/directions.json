@@ -1,0 +1,96 @@
+{
+  "id": "directions",
+  "title": "Найти дорогу",
+  "level": "A1",
+  "chapter": "02 · Жизнь в городе",
+  "description": "Спросите, где станция, и разберитесь с простыми указаниями.",
+  "minutes": 5,
+  "xp": 60,
+  "free": false,
+  "grammar": "Where is…? — Где находится…? Go straight. Turn left/right.",
+  "vocabulary": [
+    {
+      "word": "left",
+      "ru": "налево",
+      "uz": "chapga"
+    },
+    {
+      "word": "right",
+      "ru": "направо",
+      "uz": "oʻngga"
+    },
+    {
+      "word": "station",
+      "ru": "станция",
+      "uz": "bekat"
+    }
+  ],
+  "examples": [
+    "Excuse me, where is the station?",
+    "Go straight and turn left.",
+    "The cafe is next to the hotel."
+  ],
+  "exercises": [
+    {
+      "type": "choice",
+      "prompt": "Turn left означает…",
+      "answers": [
+        "Поверните налево"
+      ],
+      "explanation": "Left — лево, right — право.",
+      "choices": [
+        "Идите прямо",
+        "Поверните налево",
+        "Остановитесь"
+      ]
+    },
+    {
+      "type": "gap",
+      "prompt": "Where ___ the station?",
+      "answers": [
+        "is"
+      ],
+      "explanation": "The station — единственное число, поэтому is.",
+      "choices": [
+        "are",
+        "am",
+        "is"
+      ]
+    },
+    {
+      "type": "order",
+      "prompt": "Составьте вопрос.",
+      "answers": [
+        "Where is the hotel"
+      ],
+      "explanation": "Порядок слов: Where + is + the hotel.",
+      "choices": [
+        "hotel",
+        "the",
+        "Where",
+        "is"
+      ]
+    },
+    {
+      "type": "text",
+      "prompt": "Переведите: «Идите прямо».",
+      "answers": [
+        "Go straight"
+      ],
+      "explanation": "Go straight — идите прямо."
+    },
+    {
+      "type": "choice",
+      "prompt": "The cafe is next to the hotel. Где кафе?",
+      "answers": [
+        "Рядом с отелем"
+      ],
+      "explanation": "Next to означает «рядом с».",
+      "choices": [
+        "Внутри отеля",
+        "Рядом с отелем",
+        "За городом"
+      ]
+    }
+  ]
+}

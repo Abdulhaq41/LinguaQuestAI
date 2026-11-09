@@ -1,0 +1,112 @@
+{
+  "id": "first-hello",
+  "title": "Первое знакомство",
+  "level": "A1",
+  "chapter": "01 · Начало приключения",
+  "description": "Поздоровайтесь, представьтесь и познакомьтесь с новым другом.",
+  "minutes": 5,
+  "xp": 50,
+  "free": true,
+  "grammar": "I am → I’m. Для вопроса меняем порядок: Are you…?",
+  "vocabulary": [
+    {
+      "word": "hello",
+      "ru": "привет",
+      "uz": "salom"
+    },
+    {
+      "word": "name",
+      "ru": "имя",
+      "uz": "ism"
+    },
+    {
+      "word": "friend",
+      "ru": "друг",
+      "uz": "doʻst"
+    },
+    {
+      "word": "nice",
+      "ru": "приятный",
+      "uz": "yoqimli"
+    }
+  ],
+  "examples": [
+    "Hello! My name is Alex.",
+    "I am a student. → I’m a student.",
+    "Nice to meet you!"
+  ],
+  "exercises": [
+    {
+      "type": "choice",
+      "prompt": "Как поздороваться по-английски?",
+      "answers": [
+        "Hello"
+      ],
+      "explanation": "Hello — нейтральное приветствие. Goodbye — прощание.",
+      "choices": [
+        "Goodbye",
+        "Hello",
+        "Thanks"
+      ]
+    },
+    {
+      "type": "gap",
+      "prompt": "My name ___ Lexi.",
+      "answers": [
+        "is"
+      ],
+      "explanation": "Сочетание my name требует is: My name is Lexi.",
+      "choices": [
+        "are",
+        "am",
+        "is"
+      ]
+    },
+    {
+      "type": "order",
+      "prompt": "Составьте фразу: «Я студент».",
+      "answers": [
+        "I am a student"
+      ],
+      "explanation": "I + am + a student. Перед профессией или ролью в единственном числе нужен a.",
+      "choices": [
+        "student",
+        "a",
+        "I",
+        "am"
+      ]
+    },
+    {
+      "type": "text",
+      "prompt": "Переведите: «Меня зовут Алекс».",
+      "answers": [
+        "My name is Alex",
+        "I am Alex",
+        "I'm Alex"
+      ],
+      "explanation": "И My name is Alex, и I am Alex подходят для знакомства."
+    },
+    {
+      "type": "choice",
+      "prompt": "Nice to meet you! — Выберите вежливый ответ.",
+      "answers": [
+        "Nice to meet you too!"
+      ],
+      "explanation": "Too в конце означает «тоже».",
+      "choices": [
+        "Good night!",
+        "Nice to meet you too!",
+        "I am a book."
+      ]
+    },
+    {
+      "type": "correction",
+      "prompt": "Исправьте: I is a student.",
+      "answers": [
+        "I am a student",
+        "I'm a student"
+      ],
+      "explanation": "С I используется am, а не is."
+    }
+  ]
+}

@@ -1,0 +1,61 @@
+{
+  "id": "boss-city",
+  "title": "The City Guide",
+  "level": "A2",
+  "chapter": "Boss Battle · Проверка главы",
+  "description": "Пять практических реплик. Никакой потери попыток и платы за ошибки.",
+  "minutes": 5,
+  "xp": 80,
+  "free": false,
+  "grammar": "Повторение полезных фраз главы. Это тренажёр заданных выражений, а не оценка свободной речи.",
+  "vocabulary": [],
+  "examples": [
+    "To the station, please.",
+    "Yes, please.",
+    "Go straight and turn left.",
+    "Yes, it is next to the hotel.",
+    "Yes, thank you."
+  ],
+  "exercises": [
+    {
+      "type": "text",
+      "prompt": "Where would you like to go?\nПотренируйте фразу: To the station, please.",
+      "answers": [
+        "To the station, please."
+      ],
+      "explanation": "Вариант для запоминания: To the station, please."
+    },
+    {
+      "type": "text",
+      "prompt": "Do you need a map?\nПотренируйте фразу: Yes, please.",
+      "answers": [
+        "Yes, please."
+      ],
+      "explanation": "Вариант для запоминания: Yes, please."
+    },
+    {
+      "type": "text",
+      "prompt": "How do I get to the hotel?\nПотренируйте фразу: Go straight and turn left.",
+      "answers": [
+        "Go straight and turn left."
+      ],
+      "explanation": "Вариант для запоминания: Go straight and turn left."
+    },
+    {
+      "type": "text",
+      "prompt": "Is the cafe near here?\nПотренируйте фразу: Yes, it is next to the hotel.",
+      "answers": [
+        "Yes, it is next to the hotel."
+      ],
+      "explanation": "Вариант для запоминания: Yes, it is next to the hotel."
+    },
+    {
+      "type": "text",
+      "prompt": "Would you like some help?\nПотренируйте фразу: Yes, thank you.",
+      "answers": [
+        "Yes, thank you."
+      ],
+      "explanation": "Вариант для запоминания: Yes, thank you."
+    }
+  ]
+}

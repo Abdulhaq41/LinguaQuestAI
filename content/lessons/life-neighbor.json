@@ -1,0 +1,67 @@
+{
+  "id": "life-neighbor",
+  "title": "Новое знакомство",
+  "level": "A2",
+  "chapter": "LifeQuest · Первый день в Лондоне · 3/8",
+  "description": "Практический диалог: Jamie. Выбирайте подходящие реплики и отвечайте по-английски.",
+  "minutes": 4,
+  "xp": 40,
+  "free": false,
+  "tier": "PRO",
+  "scene": "neighbor",
+  "actor": "Jamie",
+  "grammar": "Вежливые вопросы и полные ответы. Сценарий оценивает заданные фразы, а не свободную речь.",
+  "vocabulary": [
+    {
+      "word": "please",
+      "ru": "пожалуйста",
+      "uz": "iltimos"
+    },
+    {
+      "word": "thank you",
+      "ru": "спасибо",
+      "uz": "rahmat"
+    }
+  ],
+  "examples": [
+    "Hi! Are you new here?",
+    "What is your name?",
+    "Would you like some tea?"
+  ],
+  "exercises": [
+    {
+      "type": "dialogue",
+      "prompt": "Jamie: Hi! Are you new here?",
+      "choices": [
+        "Yes, I arrived today.",
+        "Yes, I moved here yesterday.",
+        "Yes, I arriving."
+      ],
+      "answers": [
+        "Yes, I arrived today.",
+        "Yes, I moved here yesterday."
+      ],
+      "consequences": {
+        "Yes, I arrived today.": "Джейми предлагает показать ближайшее кафе.",
+        "Yes, I moved here yesterday.": "Джейми спрашивает, успели ли вы освоиться."
+      },
+      "explanation": "У этой реплики есть два подходящих варианта. Выберите тот, который соответствует вашей истории."
+    },
+    {
+      "type": "text",
+      "prompt": "What is your name?\nИспользуйте фразу: My name is Alex.",
+      "answers": [
+        "My name is Alex."
+      ],
+      "explanation": "В этом упражнении отрабатываем конкретную фразу: My name is Alex."
+    },
+    {
+      "type": "text",
+      "prompt": "Would you like some tea?\nИспользуйте фразу: Yes, please.",
+      "answers": [
+        "Yes, please."
+      ],
+      "explanation": "Полезная реплика для этой ситуации: Yes, please."
+    }
+  ]
+}

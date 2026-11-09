@@ -1,0 +1,67 @@
+{
+  "id": "life-airport",
+  "title": "Паспортный контроль",
+  "level": "A2",
+  "chapter": "LifeQuest · Первый день в Лондоне · 1/8",
+  "description": "Практический диалог: Officer Morgan. Выбирайте подходящие реплики и отвечайте по-английски.",
+  "minutes": 4,
+  "xp": 40,
+  "free": false,
+  "tier": "PRO",
+  "scene": "airport",
+  "actor": "Officer Morgan",
+  "grammar": "Вежливые вопросы и полные ответы. Сценарий оценивает заданные фразы, а не свободную речь.",
+  "vocabulary": [
+    {
+      "word": "please",
+      "ru": "пожалуйста",
+      "uz": "iltimos"
+    },
+    {
+      "word": "thank you",
+      "ru": "спасибо",
+      "uz": "rahmat"
+    }
+  ],
+  "examples": [
+    "Why are you visiting London?",
+    "How long are you staying?",
+    "Where are you staying?"
+  ],
+  "exercises": [
+    {
+      "type": "dialogue",
+      "prompt": "Officer Morgan: Why are you visiting London?",
+      "choices": [
+        "I am here on holiday.",
+        "I am here for work.",
+        "I here holiday."
+      ],
+      "answers": [
+        "I am here on holiday.",
+        "I am here for work."
+      ],
+      "consequences": {
+        "I am here on holiday.": "Отпуск: сотрудник желает вам приятного путешествия.",
+        "I am here for work.": "Рабочая поездка: сотрудник просит подготовить адрес компании."
+      },
+      "explanation": "У этой реплики есть два подходящих варианта. Выберите тот, который соответствует вашей истории."
+    },
+    {
+      "type": "text",
+      "prompt": "How long are you staying?\nИспользуйте фразу: I am staying for a week.",
+      "answers": [
+        "I am staying for a week."
+      ],
+      "explanation": "В этом упражнении отрабатываем конкретную фразу: I am staying for a week."
+    },
+    {
+      "type": "text",
+      "prompt": "Where are you staying?\nИспользуйте фразу: I am staying at a hotel.",
+      "answers": [
+        "I am staying at a hotel."
+      ],
+      "explanation": "Полезная реплика для этой ситуации: I am staying at a hotel."
+    }
+  ]
+}

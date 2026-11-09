@@ -1,0 +1,49 @@
+name: checks
+on: [push, pull_request]
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:17-alpine
+        env:
+          POSTGRES_USER: linguaquest
+          POSTGRES_DB: linguaquest
+          POSTGRES_HOST_AUTH_METHOD: trust
+        ports: ['55432:5432']
+        options: >-
+          --health-cmd "pg_isready -U linguaquest -d linguaquest"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v6
+        with:
+          python-version: '3.12'
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - run: uv sync --frozen
+      - run: uv run alembic upgrade head
+        env:
+          APP_ENV: development
+          DATABASE_URL: postgresql+psycopg://linguaquest@127.0.0.1:55432/linguaquest
+      - run: uv run pytest -q
+        env:
+          TEST_POSTGRES_URL: postgresql+psycopg://linguaquest@127.0.0.1:55432/linguaquest
+      - working-directory: apps/miniapp
+        run: npm ci && npm run build
+      - run: cp .env.example .env && uv run alembic upgrade head
+      - run: uv run uvicorn services.api.main:app --host 127.0.0.1 --port 8000 &
+      - working-directory: apps/miniapp
+        run: npm run dev > /tmp/linguaquest-vite.log 2>&1 &
+      - working-directory: apps/miniapp
+        run: npx playwright install --with-deps chromium
+      - working-directory: apps/miniapp
+        run: CHROMIUM_PATH='' npm run test:e2e
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: test-results
+          path: apps/miniapp/test-results

@@ -1,0 +1,80 @@
+name: linguaquest
+services:
+  postgres:
+    image: postgres:17-alpine
+    environment:
+      POSTGRES_USER: linguaquest
+      POSTGRES_DB: linguaquest
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD}
+    volumes: ["pgdata:/var/lib/postgresql/data"]
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U linguaquest -d linguaquest"]
+      interval: 5s
+      timeout: 5s
+      retries: 15
+    restart: unless-stopped
+  migrate:
+    build:
+      context: .
+      dockerfile: infrastructure/docker-api.Dockerfile
+    env_file: .env
+    environment:
+      DATABASE_URL: postgresql+psycopg://linguaquest:${POSTGRES_PASSWORD}@postgres:5432/linguaquest
+    command: ["alembic", "upgrade", "head"]
+    depends_on:
+      postgres: {condition: service_healthy}
+    restart: "no"
+  api:
+    build:
+      context: .
+      dockerfile: infrastructure/docker-api.Dockerfile
+    env_file: .env
+    environment:
+      APP_ENV: production
+      ENABLE_DEV_AUTH: "false"
+      DATABASE_URL: postgresql+psycopg://linguaquest:${POSTGRES_PASSWORD}@postgres:5432/linguaquest
+    depends_on:
+      migrate: {condition: service_completed_successfully}
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/api/health', timeout=3)"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+  worker:
+    build:
+      context: .
+      dockerfile: infrastructure/docker-api.Dockerfile
+    env_file: .env
+    environment:
+      APP_ENV: production
+      DATABASE_URL: postgresql+psycopg://linguaquest:${POSTGRES_PASSWORD}@postgres:5432/linguaquest
+    command: ["python", "-m", "services.worker.main"]
+    depends_on:
+      api: {condition: service_healthy}
+    restart: unless-stopped
+  web:
+    build:
+      context: .
+      dockerfile: infrastructure/docker-web.Dockerfile
+    depends_on:
+      api: {condition: service_healthy}
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://127.0.0.1/api/health"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+  caddy:
+    image: caddy:2-alpine
+    environment:
+      DOMAIN: ${DOMAIN:?Set DOMAIN}
+    ports: ["80:80", "443:443"]
+    volumes: ["./infrastructure/Caddyfile:/etc/caddy/Caddyfile:ro", "caddy_data:/data", "caddy_config:/config"]
+    depends_on:
+      web: {condition: service_healthy}
+    restart: unless-stopped
+volumes:
+  pgdata:
+  caddy_data:
+  caddy_config:

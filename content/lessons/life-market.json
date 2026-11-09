@@ -1,0 +1,67 @@
+{
+  "id": "life-market",
+  "title": "Покупки на ужин",
+  "level": "A2",
+  "chapter": "LifeQuest · Первый день в Лондоне · 5/8",
+  "description": "Практический диалог: Shopkeeper Noor. Выбирайте подходящие реплики и отвечайте по-английски.",
+  "minutes": 4,
+  "xp": 40,
+  "free": false,
+  "tier": "PRO",
+  "scene": "market",
+  "actor": "Shopkeeper Noor",
+  "grammar": "Вежливые вопросы и полные ответы. Сценарий оценивает заданные фразы, а не свободную речь.",
+  "vocabulary": [
+    {
+      "word": "please",
+      "ru": "пожалуйста",
+      "uz": "iltimos"
+    },
+    {
+      "word": "thank you",
+      "ru": "спасибо",
+      "uz": "rahmat"
+    }
+  ],
+  "examples": [
+    "Can I help you?",
+    "Would you like a bag?",
+    "How would you like to pay?"
+  ],
+  "exercises": [
+    {
+      "type": "dialogue",
+      "prompt": "Shopkeeper Noor: Can I help you?",
+      "choices": [
+        "I would like some apples.",
+        "I am looking for bread.",
+        "I wanting apples yesterday."
+      ],
+      "answers": [
+        "I would like some apples.",
+        "I am looking for bread."
+      ],
+      "consequences": {
+        "I would like some apples.": "Продавец показывает вам сезонные яблоки.",
+        "I am looking for bread.": "Продавец направляет вас к полке с хлебом."
+      },
+      "explanation": "У этой реплики есть два подходящих варианта. Выберите тот, который соответствует вашей истории."
+    },
+    {
+      "type": "text",
+      "prompt": "Would you like a bag?\nИспользуйте фразу: Yes, please.",
+      "answers": [
+        "Yes, please."
+      ],
+      "explanation": "В этом упражнении отрабатываем конкретную фразу: Yes, please."
+    },
+    {
+      "type": "text",
+      "prompt": "How would you like to pay?\nИспользуйте фразу: By card, please.",
+      "answers": [
+        "By card, please."
+      ],
+      "explanation": "Полезная реплика для этой ситуации: By card, please."
+    }
+  ]
+}

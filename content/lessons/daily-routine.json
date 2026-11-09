@@ -1,0 +1,94 @@
+{
+  "id": "daily-routine",
+  "title": "Мой обычный день",
+  "level": "A1",
+  "chapter": "02 · Жизнь в городе",
+  "description": "Расскажите, где живёте и чем занимаетесь каждый день.",
+  "minutes": 6,
+  "xp": 60,
+  "free": false,
+  "grammar": "Present Simple: I work, she works. В отрицании: I do not work; she does not work.",
+  "vocabulary": [
+    {
+      "word": "work",
+      "ru": "работать",
+      "uz": "ishlamoq"
+    },
+    {
+      "word": "live",
+      "ru": "жить",
+      "uz": "yashamoq"
+    },
+    {
+      "word": "study",
+      "ru": "учиться",
+      "uz": "oʻqimoq"
+    }
+  ],
+  "examples": [
+    "I live in Tashkent.",
+    "She works in London.",
+    "He does not work on Sunday."
+  ],
+  "exercises": [
+    {
+      "type": "gap",
+      "prompt": "She ___ English every day.",
+      "answers": [
+        "studies"
+      ],
+      "explanation": "После согласной + y: study → studies в 3-м лице.",
+      "choices": [
+        "study",
+        "studies",
+        "studying"
+      ]
+    },
+    {
+      "type": "choice",
+      "prompt": "Как сказать «Я живу в Ташкенте»?",
+      "answers": [
+        "I live in Tashkent."
+      ],
+      "explanation": "Для города используем in.",
+      "choices": [
+        "I live at Tashkent.",
+        "I lives in Tashkent.",
+        "I live in Tashkent."
+      ]
+    },
+    {
+      "type": "correction",
+      "prompt": "Исправьте: He do not work.",
+      "answers": [
+        "He does not work",
+        "He doesn't work"
+      ],
+      "explanation": "He → does not; основной глагол work остаётся без -s."
+    },
+    {
+      "type": "order",
+      "prompt": "Составьте предложение.",
+      "answers": [
+        "I study English every day"
+      ],
+      "explanation": "Every day — каждый день.",
+      "choices": [
+        "English",
+        "day",
+        "I",
+        "every",
+        "study"
+      ]
+    },
+    {
+      "type": "text",
+      "prompt": "Переведите: «Она работает».",
+      "answers": [
+        "She works",
+        "She does work"
+      ],
+      "explanation": "She works — обычное утверждение в Present Simple."
+    }
+  ]
+}

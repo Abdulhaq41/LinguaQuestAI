@@ -1,0 +1,61 @@
+{
+  "id": "boss-airport",
+  "title": "The Airport Officer",
+  "level": "A2",
+  "chapter": "Boss Battle · Проверка главы",
+  "description": "Пять практических реплик. Никакой потери попыток и платы за ошибки.",
+  "minutes": 5,
+  "xp": 80,
+  "free": false,
+  "grammar": "Повторение полезных фраз главы. Это тренажёр заданных выражений, а не оценка свободной речи.",
+  "vocabulary": [],
+  "examples": [
+    "I am here on holiday.",
+    "I am staying for a week.",
+    "I am staying at a hotel.",
+    "Yes, I have a return ticket.",
+    "Yes, it is my first visit."
+  ],
+  "exercises": [
+    {
+      "type": "text",
+      "prompt": "What is the purpose of your visit?\nПотренируйте фразу: I am here on holiday.",
+      "answers": [
+        "I am here on holiday."
+      ],
+      "explanation": "Вариант для запоминания: I am here on holiday."
+    },
+    {
+      "type": "text",
+      "prompt": "How long are you staying?\nПотренируйте фразу: I am staying for a week.",
+      "answers": [
+        "I am staying for a week."
+      ],
+      "explanation": "Вариант для запоминания: I am staying for a week."
+    },
+    {
+      "type": "text",
+      "prompt": "Where are you staying?\nПотренируйте фразу: I am staying at a hotel.",
+      "answers": [
+        "I am staying at a hotel."
+      ],
+      "explanation": "Вариант для запоминания: I am staying at a hotel."
+    },
+    {
+      "type": "text",
+      "prompt": "Do you have a return ticket?\nПотренируйте фразу: Yes, I have a return ticket.",
+      "answers": [
+        "Yes, I have a return ticket."
+      ],
+      "explanation": "Вариант для запоминания: Yes, I have a return ticket."
+    },
+    {
+      "type": "text",
+      "prompt": "Is this your first visit?\nПотренируйте фразу: Yes, it is my first visit.",
+      "answers": [
+        "Yes, it is my first visit."
+      ],
+      "explanation": "Вариант для запоминания: Yes, it is my first visit."
+    }
+  ]
+}

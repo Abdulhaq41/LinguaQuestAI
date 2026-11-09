@@ -1,0 +1,94 @@
+{
+  "id": "future-plans",
+  "title": "Планы на путешествие",
+  "level": "A2",
+  "chapter": "03 · Новые истории",
+  "description": "Расскажите о намерениях и договоритесь о поездке.",
+  "minutes": 6,
+  "xp": 70,
+  "free": false,
+  "grammar": "Be going to + глагол — намерение. I am going to travel. Are you going to travel?",
+  "vocabulary": [
+    {
+      "word": "travel",
+      "ru": "путешествовать",
+      "uz": "sayohat qilmoq"
+    },
+    {
+      "word": "tomorrow",
+      "ru": "завтра",
+      "uz": "ertaga"
+    },
+    {
+      "word": "ticket",
+      "ru": "билет",
+      "uz": "chipta"
+    }
+  ],
+  "examples": [
+    "I am going to travel tomorrow.",
+    "She is going to book a room.",
+    "Are you going to buy a ticket?"
+  ],
+  "exercises": [
+    {
+      "type": "gap",
+      "prompt": "She ___ going to book a room.",
+      "answers": [
+        "is"
+      ],
+      "explanation": "She is going to + начальная форма.",
+      "choices": [
+        "am",
+        "are",
+        "is"
+      ]
+    },
+    {
+      "type": "order",
+      "prompt": "Составьте намерение.",
+      "answers": [
+        "I am going to travel"
+      ],
+      "explanation": "I + am + going to + travel.",
+      "choices": [
+        "to",
+        "travel",
+        "am",
+        "I",
+        "going"
+      ]
+    },
+    {
+      "type": "correction",
+      "prompt": "Исправьте: I going to buy a ticket.",
+      "answers": [
+        "I am going to buy a ticket",
+        "I'm going to buy a ticket"
+      ],
+      "explanation": "Перед going to необходима форма be — здесь am."
+    },
+    {
+      "type": "text",
+      "prompt": "Переведите: «Мы собираемся путешествовать».",
+      "answers": [
+        "We are going to travel",
+        "We're going to travel"
+      ],
+      "explanation": "We are going to travel — намерение путешествовать."
+    },
+    {
+      "type": "choice",
+      "prompt": "Are you going to travel tomorrow? Выберите краткий положительный ответ.",
+      "answers": [
+        "Yes, I am."
+      ],
+      "explanation": "В кратком ответе сохраняется am.",
+      "choices": [
+        "Yes, I do.",
+        "Yes, I am.",
+        "Yes, I going."
+      ]
+    }
+  ]
+}

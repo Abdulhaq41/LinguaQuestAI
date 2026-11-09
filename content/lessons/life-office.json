@@ -1,0 +1,67 @@
+{
+  "id": "life-office",
+  "title": "Первая рабочая задача",
+  "level": "A2",
+  "chapter": "LifeQuest · Первый день в Лондоне · 8/8",
+  "description": "Практический диалог: Colleague Avery. Выбирайте подходящие реплики и отвечайте по-английски.",
+  "minutes": 4,
+  "xp": 40,
+  "free": false,
+  "tier": "PRO",
+  "scene": "office",
+  "actor": "Colleague Avery",
+  "grammar": "Вежливые вопросы и полные ответы. Сценарий оценивает заданные фразы, а не свободную речь.",
+  "vocabulary": [
+    {
+      "word": "please",
+      "ru": "пожалуйста",
+      "uz": "iltimos"
+    },
+    {
+      "word": "thank you",
+      "ru": "спасибо",
+      "uz": "rahmat"
+    }
+  ],
+  "examples": [
+    "Can you help me with this task?",
+    "When can you finish?",
+    "Do you have any questions?"
+  ],
+  "exercises": [
+    {
+      "type": "dialogue",
+      "prompt": "Colleague Avery: Can you help me with this task?",
+      "choices": [
+        "Yes, what do you need?",
+        "Of course. Can you explain it?",
+        "Me task yesterday."
+      ],
+      "answers": [
+        "Yes, what do you need?",
+        "Of course. Can you explain it?"
+      ],
+      "consequences": {
+        "Yes, what do you need?": "Коллега просит подготовить краткое письмо.",
+        "Of course. Can you explain it?": "Коллега сначала объясняет задачу — уточнять полезно."
+      },
+      "explanation": "У этой реплики есть два подходящих варианта. Выберите тот, который соответствует вашей истории."
+    },
+    {
+      "type": "text",
+      "prompt": "When can you finish?\nИспользуйте фразу: I can finish it today.",
+      "answers": [
+        "I can finish it today."
+      ],
+      "explanation": "В этом упражнении отрабатываем конкретную фразу: I can finish it today."
+    },
+    {
+      "type": "text",
+      "prompt": "Do you have any questions?\nИспользуйте фразу: Could you repeat that, please?",
+      "answers": [
+        "Could you repeat that, please?"
+      ],
+      "explanation": "Полезная реплика для этой ситуации: Could you repeat that, please?"
+    }
+  ]
+}

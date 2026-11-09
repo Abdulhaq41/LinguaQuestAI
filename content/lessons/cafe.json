@@ -1,0 +1,91 @@
+{
+  "id": "cafe",
+  "title": "Кофе и добрые слова",
+  "level": "A1",
+  "chapter": "01 · Начало приключения",
+  "description": "Закажите напиток в кафе и вежливо поблагодарите.",
+  "minutes": 5,
+  "xp": 60,
+  "free": false,
+  "grammar": "I would like… — вежливая просьба. Сокращение: I’d like…",
+  "vocabulary": [
+    {
+      "word": "coffee",
+      "ru": "кофе",
+      "uz": "qahva"
+    },
+    {
+      "word": "tea",
+      "ru": "чай",
+      "uz": "choy"
+    },
+    {
+      "word": "please",
+      "ru": "пожалуйста",
+      "uz": "iltimos"
+    }
+  ],
+  "examples": [
+    "I would like a coffee, please.",
+    "Can I have some water?",
+    "Thank you!"
+  ],
+  "exercises": [
+    {
+      "type": "choice",
+      "prompt": "Выберите вежливый заказ.",
+      "answers": [
+        "I would like a tea, please."
+      ],
+      "explanation": "I would like — вежливая форма просьбы.",
+      "choices": [
+        "Give tea now!",
+        "I would like a tea, please.",
+        "Tea me!"
+      ]
+    },
+    {
+      "type": "gap",
+      "prompt": "Can I ___ some water, please?",
+      "answers": [
+        "have"
+      ],
+      "explanation": "Can I have…? — Можно мне…?",
+      "choices": [
+        "has",
+        "having",
+        "have"
+      ]
+    },
+    {
+      "type": "order",
+      "prompt": "Составьте заказ.",
+      "answers": [
+        "A coffee please"
+      ],
+      "explanation": "В контексте заказа a coffee — одна порция кофе.",
+      "choices": [
+        "please",
+        "coffee",
+        "A"
+      ]
+    },
+    {
+      "type": "text",
+      "prompt": "Переведите: «Спасибо».",
+      "answers": [
+        "Thank you",
+        "Thanks"
+      ],
+      "explanation": "Thank you — нейтрально, Thanks — более неформально."
+    },
+    {
+      "type": "correction",
+      "prompt": "Исправьте: I would likes a coffee.",
+      "answers": [
+        "I would like a coffee"
+      ],
+      "explanation": "После would используется начальная форма like."
+    }
+  ]
+}

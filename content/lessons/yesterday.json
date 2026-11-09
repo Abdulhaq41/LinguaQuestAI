@@ -1,0 +1,93 @@
+{
+  "id": "yesterday",
+  "title": "Вчера в Лондоне",
+  "level": "A2",
+  "chapter": "03 · Новые истории",
+  "description": "Расскажите о событиях прошедшего дня.",
+  "minutes": 6,
+  "xp": 70,
+  "free": false,
+  "grammar": "Past Simple: visit → visited. Неправильный go → went. После did/did not — начальная форма.",
+  "vocabulary": [
+    {
+      "word": "yesterday",
+      "ru": "вчера",
+      "uz": "kecha"
+    },
+    {
+      "word": "visited",
+      "ru": "посетил",
+      "uz": "tashrif buyurdi"
+    },
+    {
+      "word": "went",
+      "ru": "пошёл",
+      "uz": "bordi"
+    }
+  ],
+  "examples": [
+    "I visited London yesterday.",
+    "We went to a cafe.",
+    "Did you enjoy the trip?"
+  ],
+  "exercises": [
+    {
+      "type": "gap",
+      "prompt": "Yesterday we ___ to a cafe.",
+      "answers": [
+        "went"
+      ],
+      "explanation": "Прошедшая форма go — went.",
+      "choices": [
+        "go",
+        "went",
+        "going"
+      ]
+    },
+    {
+      "type": "correction",
+      "prompt": "Исправьте: Did you visited London?",
+      "answers": [
+        "Did you visit London"
+      ],
+      "explanation": "После did используем visit, а не visited."
+    },
+    {
+      "type": "choice",
+      "prompt": "I did not buy a ticket. Что произошло?",
+      "answers": [
+        "Я не купил билет"
+      ],
+      "explanation": "Did not buy — отрицание в прошедшем времени.",
+      "choices": [
+        "Я куплю билет",
+        "Я не купил билет",
+        "Я покупаю билет"
+      ]
+    },
+    {
+      "type": "text",
+      "prompt": "Переведите: «Я посетил Лондон вчера».",
+      "answers": [
+        "I visited London yesterday",
+        "Yesterday I visited London"
+      ],
+      "explanation": "Visited — правильная форма Past Simple для visit."
+    },
+    {
+      "type": "order",
+      "prompt": "Составьте вопрос.",
+      "answers": [
+        "Did you enjoy the trip"
+      ],
+      "explanation": "Did + подлежащее + начальная форма.",
+      "choices": [
+        "trip",
+        "enjoy",
+        "the",
+        "Did",
+        "you"
+      ]
+    }
+  ]
+}

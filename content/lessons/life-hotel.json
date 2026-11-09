@@ -1,0 +1,67 @@
+{
+  "id": "life-hotel",
+  "title": "Номер на ночь",
+  "level": "A2",
+  "chapter": "LifeQuest · Первый день в Лондоне · 4/8",
+  "description": "Практический диалог: Receptionist Maya. Выбирайте подходящие реплики и отвечайте по-английски.",
+  "minutes": 4,
+  "xp": 40,
+  "free": false,
+  "tier": "PRO",
+  "scene": "hotel",
+  "actor": "Receptionist Maya",
+  "grammar": "Вежливые вопросы и полные ответы. Сценарий оценивает заданные фразы, а не свободную речь.",
+  "vocabulary": [
+    {
+      "word": "please",
+      "ru": "пожалуйста",
+      "uz": "iltimos"
+    },
+    {
+      "word": "thank you",
+      "ru": "спасибо",
+      "uz": "rahmat"
+    }
+  ],
+  "examples": [
+    "Do you have a reservation?",
+    "How many nights?",
+    "Could I see your passport?"
+  ],
+  "exercises": [
+    {
+      "type": "dialogue",
+      "prompt": "Receptionist Maya: Do you have a reservation?",
+      "choices": [
+        "Yes, I have a reservation.",
+        "No, do you have a room?",
+        "I room yesterday tomorrow."
+      ],
+      "answers": [
+        "Yes, I have a reservation.",
+        "No, do you have a room?"
+      ],
+      "consequences": {
+        "Yes, I have a reservation.": "Администратор находит вашу бронь.",
+        "No, do you have a room?": "Администратор проверяет свободные номера."
+      },
+      "explanation": "У этой реплики есть два подходящих варианта. Выберите тот, который соответствует вашей истории."
+    },
+    {
+      "type": "text",
+      "prompt": "How many nights?\nИспользуйте фразу: Two nights, please.",
+      "answers": [
+        "Two nights, please."
+      ],
+      "explanation": "В этом упражнении отрабатываем конкретную фразу: Two nights, please."
+    },
+    {
+      "type": "text",
+      "prompt": "Could I see your passport?\nИспользуйте фразу: Here is my passport.",
+      "answers": [
+        "Here is my passport."
+      ],
+      "explanation": "Полезная реплика для этой ситуации: Here is my passport."
+    }
+  ]
+}

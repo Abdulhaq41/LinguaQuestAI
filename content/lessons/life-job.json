@@ -1,0 +1,67 @@
+{
+  "id": "life-job",
+  "title": "Поиск работы",
+  "level": "A2",
+  "chapter": "LifeQuest · Первый день в Лондоне · 6/8",
+  "description": "Практический диалог: Recruiter Taylor. Выбирайте подходящие реплики и отвечайте по-английски.",
+  "minutes": 4,
+  "xp": 40,
+  "free": false,
+  "tier": "PRO",
+  "scene": "job",
+  "actor": "Recruiter Taylor",
+  "grammar": "Вежливые вопросы и полные ответы. Сценарий оценивает заданные фразы, а не свободную речь.",
+  "vocabulary": [
+    {
+      "word": "please",
+      "ru": "пожалуйста",
+      "uz": "iltimos"
+    },
+    {
+      "word": "thank you",
+      "ru": "спасибо",
+      "uz": "rahmat"
+    }
+  ],
+  "examples": [
+    "What kind of work are you looking for?",
+    "Do you have any experience?",
+    "When can you start?"
+  ],
+  "exercises": [
+    {
+      "type": "dialogue",
+      "prompt": "Recruiter Taylor: What kind of work are you looking for?",
+      "choices": [
+        "I am looking for an office job.",
+        "I would like to work in a cafe.",
+        "I work finding is."
+      ],
+      "answers": [
+        "I am looking for an office job.",
+        "I would like to work in a cafe."
+      ],
+      "consequences": {
+        "I am looking for an office job.": "Рекрутер предлагает вакансию помощника.",
+        "I would like to work in a cafe.": "Рекрутер предлагает встречу с менеджером кафе."
+      },
+      "explanation": "У этой реплики есть два подходящих варианта. Выберите тот, который соответствует вашей истории."
+    },
+    {
+      "type": "text",
+      "prompt": "Do you have any experience?\nИспользуйте фразу: Yes, I have some experience.",
+      "answers": [
+        "Yes, I have some experience."
+      ],
+      "explanation": "В этом упражнении отрабатываем конкретную фразу: Yes, I have some experience."
+    },
+    {
+      "type": "text",
+      "prompt": "When can you start?\nИспользуйте фразу: I can start next week.",
+      "answers": [
+        "I can start next week."
+      ],
+      "explanation": "Полезная реплика для этой ситуации: I can start next week."
+    }
+  ]
+}

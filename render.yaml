@@ -1,0 +1,39 @@
+# Test deployment only. Review currently available plans/prices in Render before creating resources.
+# No token values belong in this file.
+services:
+  - type: web
+    name: linguaquest-test
+    runtime: docker
+    plan: free
+    dockerfilePath: ./infrastructure/docker-hosted.Dockerfile
+    dockerContext: .
+    healthCheckPath: /api/health
+    numInstances: 1
+    envVars:
+      - key: APP_ENV
+        value: production
+      - key: ENABLE_DEV_AUTH
+        value: "false"
+      - key: COMMERCE_ENABLED
+        value: "false"
+      - key: AI_ENABLED
+        value: "false"
+      - key: AUTO_CONFIGURE_BOT
+        value: "true"
+      - key: BOT_USERNAME
+        value: Linguaquesttest_bot
+      - key: BOT_TOKEN
+        sync: false
+      - key: WEBHOOK_SECRET
+        generateValue: true
+      - key: DATABASE_URL
+        fromDatabase:
+          name: linguaquest-test-db
+          property: connectionString
+
+databases:
+  - name: linguaquest-test-db
+    plan: free
+    databaseName: linguaquest
+    user: linguaquest
+    postgresMajorVersion: "17"

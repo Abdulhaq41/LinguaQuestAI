@@ -1,0 +1,2 @@
+import {defineConfig,devices} from '@playwright/test';
+export default defineConfig({testDir:'./e2e',timeout:45000,use:{baseURL:'http://localhost:5173',launchOptions:{executablePath:process.env.CHROMIUM_PATH===undefined?'/usr/bin/chromium':process.env.CHROMIUM_PATH||undefined,args:['--no-sandbox']},screenshot:'only-on-failure',trace:'retain-on-failure'},projects:[{name:'mobile',use:{...devices['iPhone 13'],defaultBrowserType:'chromium'}},{name:'desktop',use:{viewport:{width:1440,height:1000}}}],reporter:[['list'],['json',{outputFile:'test-results/results.json'}]]});

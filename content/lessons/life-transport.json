@@ -1,0 +1,67 @@
+{
+  "id": "life-transport",
+  "title": "Дорога в город",
+  "level": "A2",
+  "chapter": "LifeQuest · Первый день в Лондоне · 2/8",
+  "description": "Практический диалог: Driver Sam. Выбирайте подходящие реплики и отвечайте по-английски.",
+  "minutes": 4,
+  "xp": 40,
+  "free": false,
+  "tier": "PRO",
+  "scene": "transport",
+  "actor": "Driver Sam",
+  "grammar": "Вежливые вопросы и полные ответы. Сценарий оценивает заданные фразы, а не свободную речь.",
+  "vocabulary": [
+    {
+      "word": "please",
+      "ru": "пожалуйста",
+      "uz": "iltimos"
+    },
+    {
+      "word": "thank you",
+      "ru": "спасибо",
+      "uz": "rahmat"
+    }
+  ],
+  "examples": [
+    "Where would you like to go?",
+    "Do you have a ticket?",
+    "Would you like a return ticket?"
+  ],
+  "exercises": [
+    {
+      "type": "dialogue",
+      "prompt": "Driver Sam: Where would you like to go?",
+      "choices": [
+        "To the station, please.",
+        "To the city centre, please.",
+        "I go yesterday."
+      ],
+      "answers": [
+        "To the station, please.",
+        "To the city centre, please."
+      ],
+      "consequences": {
+        "To the station, please.": "Вы направляетесь на вокзал, чтобы продолжить путь поездом.",
+        "To the city centre, please.": "Вы выбрали центр города: поездка проходит мимо набережной."
+      },
+      "explanation": "У этой реплики есть два подходящих варианта. Выберите тот, который соответствует вашей истории."
+    },
+    {
+      "type": "text",
+      "prompt": "Do you have a ticket?\nИспользуйте фразу: Yes, I have a ticket.",
+      "answers": [
+        "Yes, I have a ticket."
+      ],
+      "explanation": "В этом упражнении отрабатываем конкретную фразу: Yes, I have a ticket."
+    },
+    {
+      "type": "text",
+      "prompt": "Would you like a return ticket?\nИспользуйте фразу: A single ticket, please.",
+      "answers": [
+        "A single ticket, please."
+      ],
+      "explanation": "Полезная реплика для этой ситуации: A single ticket, please."
+    }
+  ]
+}

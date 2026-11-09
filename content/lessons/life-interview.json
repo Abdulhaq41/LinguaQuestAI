@@ -1,0 +1,67 @@
+{
+  "id": "life-interview",
+  "title": "Первое собеседование",
+  "level": "A2",
+  "chapter": "LifeQuest · Первый день в Лондоне · 7/8",
+  "description": "Практический диалог: Manager Riley. Выбирайте подходящие реплики и отвечайте по-английски.",
+  "minutes": 4,
+  "xp": 40,
+  "free": false,
+  "tier": "PRO",
+  "scene": "interview",
+  "actor": "Manager Riley",
+  "grammar": "Вежливые вопросы и полные ответы. Сценарий оценивает заданные фразы, а не свободную речь.",
+  "vocabulary": [
+    {
+      "word": "please",
+      "ru": "пожалуйста",
+      "uz": "iltimos"
+    },
+    {
+      "word": "thank you",
+      "ru": "спасибо",
+      "uz": "rahmat"
+    }
+  ],
+  "examples": [
+    "Tell me about yourself.",
+    "Why would you like this job?",
+    "Can you work on Monday?"
+  ],
+  "exercises": [
+    {
+      "type": "dialogue",
+      "prompt": "Manager Riley: Tell me about yourself.",
+      "choices": [
+        "I am a student and I like learning.",
+        "I have experience in customer service.",
+        "Me is job."
+      ],
+      "answers": [
+        "I am a student and I like learning.",
+        "I have experience in customer service."
+      ],
+      "consequences": {
+        "I am a student and I like learning.": "Менеджер обсуждает обучение на рабочем месте.",
+        "I have experience in customer service.": "Менеджер просит привести пример работы с клиентом."
+      },
+      "explanation": "У этой реплики есть два подходящих варианта. Выберите тот, который соответствует вашей истории."
+    },
+    {
+      "type": "text",
+      "prompt": "Why would you like this job?\nИспользуйте фразу: I would like to learn new skills.",
+      "answers": [
+        "I would like to learn new skills."
+      ],
+      "explanation": "В этом упражнении отрабатываем конкретную фразу: I would like to learn new skills."
+    },
+    {
+      "type": "text",
+      "prompt": "Can you work on Monday?\nИспользуйте фразу: Yes, I can.",
+      "answers": [
+        "Yes, I can."
+      ],
+      "explanation": "Полезная реплика для этой ситуации: Yes, I can."
+    }
+  ]
+}

@@ -1,0 +1,95 @@
+import{test,expect}from'@playwright/test';
+async function register(page:any){
+ await page.route('https://telegram.org/**',(route:any)=>route.fulfill({body:''}));
+ await page.goto('/');
+ await page.getByRole('button',{name:'Войти в режиме разработки'}).click();
+ await expect(page.getByRole('heading',{name:'Начнём с твоей цели'})).toBeVisible();
+ await page.getByRole('button',{name:'Начать приключение'}).click();
+ await expect(page.getByRole('heading',{name:/С возвращением/})).toBeVisible();
+}
+test('registration, free lesson, saved results and paywall',async({page},testInfo)=>{
+ const errors:string[]=[];page.on('pageerror',e=>errors.push(e.message));
+ await register(page);
+ expect(await page.evaluate(()=>document.documentElement.scrollWidth<=window.innerWidth)).toBeTruthy();
+ await page.screenshot({path:`test-results/home-${testInfo.project.name}.png`,fullPage:true});
+ await page.getByRole('button',{name:'Продолжить обучение',exact:true}).click();
+ await expect(page.getByRole('heading',{name:'Первое знакомство'})).toBeVisible();
+ await page.getByRole('button',{name:'Начать приключение'}).click();
+ await page.getByRole('button',{name:'B Hello',exact:true}).click();
+ await page.getByRole('button',{name:'Проверить ответ'}).click();
+ await expect(page.getByRole('heading',{name:'Верно!'})).toBeVisible();
+ await page.getByRole('button',{name:'Продолжить',exact:true}).click();
+ await page.getByRole('button',{name:'C is',exact:true}).click();
+ await page.getByRole('button',{name:'Проверить ответ'}).click();
+ await page.getByRole('button',{name:'Продолжить',exact:true}).click();
+ for(const word of ['I','am','a','student'])await page.getByRole('button',{name:word,exact:true}).click();
+ await page.getByRole('button',{name:'Проверить ответ'}).click();
+ await page.getByRole('button',{name:'Продолжить',exact:true}).click();
+ await page.getByLabel('Ваш ответ').fill('My name is Alex');
+ await page.getByRole('button',{name:'Проверить ответ'}).click();
+ await page.getByRole('button',{name:'Продолжить',exact:true}).click();
+ await page.getByRole('button',{name:'B Nice to meet you too!',exact:true}).click();
+ await page.getByRole('button',{name:'Проверить ответ'}).click();
+ await page.getByRole('button',{name:'Продолжить',exact:true}).click();
+ await page.getByLabel('Ваш ответ').fill('I am a student');
+ await page.getByRole('button',{name:'Проверить ответ'}).click();
+ await page.getByRole('button',{name:'Продолжить',exact:true}).click();
+ await page.getByRole('button',{name:'Завершить урок'}).click();
+ await expect(page.getByRole('heading',{name:'100%'})).toBeVisible();
+ await page.getByRole('button',{name:'Открыть новые горизонты'}).click();
+ await expect(page.getByRole('heading',{name:'START',exact:true})).toBeVisible();
+ await expect(page.getByRole('button',{name:'Скоро · покупка закрыта'}).first()).toBeDisabled();
+ await page.getByRole('button',{name:'Выбрать START'}).click();
+ await expect(page.getByRole('alert')).toContainText('Продажи ещё не открыты');
+ await page.reload();
+ await expect(page.getByRole('heading',{name:/С возвращением/})).toBeVisible();
+ const profile=await page.request.get('/api/users/me');
+ const data=await profile.json();expect(data.xp).toBe(50);expect(data.progress.completed_lessons).toBe(1);
+ expect(errors).toEqual([]);
+});
+test('navigation, profile settings, language, theme, admin denial',async({page})=>{
+ await register(page);
+ const navigation=page.locator(await page.viewportSize()!.width<800?'.bottom-nav':'.sidebar nav');
+ await navigation.getByRole('button',{name:'Обучение',exact:true}).click();
+ await expect(page.getByRole('heading',{name:'Карта приключений'})).toBeVisible();
+ await navigation.getByRole('button',{name:'AI Chat',exact:false}).click();
+ await expect(page.getByRole('heading',{name:'Поговорим с Lexi'})).toBeVisible();
+ await navigation.getByRole('button',{name:'Рейтинг',exact:true}).click();
+ await expect(page.getByText('Рейтинг пока пуст.',{exact:false})).toBeVisible();
+ await navigation.getByRole('button',{name:'Профиль',exact:true}).click();
+ await page.getByLabel('Светлая тема').check();
+ await page.getByLabel('Участвовать в публичном рейтинге').check();
+ await page.getByRole('button',{name:'Сохранить',exact:true}).click();
+ await expect(page.getByRole('status')).toContainText('Сохранено');
+ await expect(page.locator('html')).toHaveAttribute('data-theme','light');
+ await page.locator('.settings-panel select').first().selectOption('uz');
+ await page.getByRole('button',{name:'Saqlash',exact:true}).click();
+ await expect(page.getByRole('heading',{name:'Profil',exact:true})).toBeVisible();
+ await page.getByRole('button',{name:'Boshqaruv',exact:true}).click();
+ await expect(page.getByRole('alert')).toContainText('Требуются права администратора');
+});
+
+test('game hub preserves real rewards, vocabulary and achievements',async({page})=>{
+ await register(page);
+ const a=await page.request.post('/api/lessons/first-hello/start');const attempt=await a.json();
+ for(const [index,value]of ['Hello','is','I am a student','My name is Alex','Nice to meet you too!','I am a student'].entries()){
+  expect((await page.request.post(`/api/attempts/${attempt.id}/answer`,{data:{index,value}})).ok()).toBeTruthy();
+ }
+ expect((await page.request.post(`/api/attempts/${attempt.id}/complete`)).ok()).toBeTruthy();
+ const navigation=page.locator(page.viewportSize()!.width<800?'.bottom-nav':'.sidebar nav');
+ await navigation.getByRole('button',{name:'Обучение',exact:true}).click();
+ await page.getByRole('button',{name:'Миссия дня',exact:true}).click();
+ await expect(page.getByRole('heading',{name:'Пройди один урок сегодня'})).toBeVisible();
+ await page.getByRole('button',{name:'Забрать награду',exact:true}).click();
+ await expect(page.getByRole('button',{name:'Награда получена',exact:true})).toBeDisabled();
+ await page.getByRole('button',{name:'Словарь',exact:true}).click();
+ await expect(page.getByRole('heading',{name:'Словарь открытий'})).toBeVisible();
+ await expect(page.locator('.hub-panel .word-grid>div')).toHaveCount(4);
+ await page.getByRole('button',{name:'Повторить слова · START'}).click();
+ await expect(page.locator('.hub-panel [role=alert]')).toContainText('Для продолжения нужна подписка');
+ await page.getByRole('button',{name:'Достижения',exact:true}).click();
+ await expect(page.locator('.achievement-tile')).toHaveCount(25);
+ await page.getByRole('button',{name:'Проверить основы',exact:true}).click();
+ for(const answer of ['Hello','is','London','went','No','will call'])await page.locator('.hub-panel').getByRole('button',{name:answer,exact:true}).click();
+ await expect(page.getByRole('heading',{name:'A2 practice'})).toBeVisible();
+});
