@@ -1,3 +1,5 @@
+import hashlib
+import re
 from functools import lru_cache
 from pydantic import field_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
@@ -29,6 +31,17 @@ class Settings(BaseSettings):
             for prefix in ('postgres://', 'postgresql://'):
                 if value.startswith(prefix):
                     return 'postgresql+psycopg://' + value[len(prefix):]
+        return value
+
+    @field_validator('webhook_secret', mode='before')
+    @classmethod
+    def telegram_webhook_secret(cls, value):
+        # Render-generated values can be base64. Telegram accepts only A-Z/a-z/0-9/_/-
+        # and at most 256 characters. Sender and webhook receiver share this setting.
+        # Do not expand short inputs: startup must still reject weak secrets.
+        if isinstance(value, str) and len(value) >= 32:
+            if len(value) > 256 or re.fullmatch(r'[A-Za-z0-9_-]+', value) is None:
+                return hashlib.sha256(value.encode('utf-8')).hexdigest()
         return value
 
     @property

@@ -6,7 +6,7 @@
 
 `render.yaml` описывает один Docker web service и PostgreSQL. В одном контейнере находятся API и собранная Mini App; запросы идут на тот же origin, cookie Secure. База сохраняет прогресс независимо от файлов web-контейнера. Перед запуском применяются миграции. Строка подключения от PaaS преобразуется к установленному драйверу psycopg v3.
 
-WEBAPP_URL берётся из RENDER_EXTERNAL_URL. WEBHOOK_SECRET генерируется хостингом. После запуска API отдельная задача проверяет username через getMe, настраивает webhook без удаления pending updates, кнопку Mini App и команды. Секреты не попадают в Dockerfile, blueprint, Git или сообщения о настройке.
+WEBAPP_URL берётся из RENDER_EXTERNAL_URL. WEBHOOK_SECRET генерируется хостингом. Если генератор использует base64 с символами, запрещёнными Telegram, приложение детерминированно преобразует достаточно длинное значение в SHA-256 hex. Это одинаково применяется при регистрации webhook и при проверке входящих запросов; менять значение вручную в Render не требуется. После запуска API отдельная задача проверяет username через getMe, настраивает webhook без удаления pending updates, кнопку Mini App и команды. Секреты не попадают в Dockerfile, blueprint, Git или сообщения о настройке.
 
 Функция настройки включена только при AUTO_CONFIGURE_BOT=true. Состояние доступно через `/api/deployment/status`: not_configured, pending, ready или failed. Наличие переменной BOT_TOKEN само по себе не означает ready.
 
