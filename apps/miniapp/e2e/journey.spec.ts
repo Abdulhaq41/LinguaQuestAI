@@ -65,8 +65,8 @@ test('navigation, profile settings, language, theme, admin denial',async({page})
  await page.locator('.settings-panel select').first().selectOption('uz');
  await page.getByRole('button',{name:'Saqlash',exact:true}).click();
  await expect(page.getByRole('heading',{name:'Profil',exact:true})).toBeVisible();
- await page.getByRole('button',{name:'Boshqaruv',exact:true}).click();
- await expect(page.getByRole('alert')).toContainText('Требуются права администратора');
+ await expect(page.getByRole('button',{name:'Boshqaruv',exact:true})).toHaveCount(0);
+ expect((await page.request.get('/api/admin/dashboard')).status()).toBe(403);
 });
 
 test('game hub preserves real rewards, vocabulary and achievements',async({page})=>{

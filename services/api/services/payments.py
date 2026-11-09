@@ -2,7 +2,7 @@ import uuid
 import httpx
 from fastapi import HTTPException
 from sqlalchemy import select
-from ..models import User, Order, Payment, Plan, now
+from ..models import User, Order, Payment, Plan, AccessGrant, now
 from ..config import settings
 from .learning import emit
 
@@ -62,24 +62,43 @@ async def telegram(method, **data):
     raise TelegramRequestError(reason,
                                upstream_status=status, retry_after=retry_after) from None
 
-def entitlement(db, uid):
+def paid_entitlement(db, uid):
     payment = db.scalar(select(Payment).where(Payment.user_id == uid, Payment.refunded.is_(False), Payment.grants_access.is_(True), Payment.expires_at > now()).order_by(Payment.expires_at.desc()))
     if not payment: return None
     order = db.get(Order, payment.order_id)
-    return {'plan': order.plan_id, 'expires_at': payment.expires_at, 'auto_renew': not order.subscription_canceled, 'charge_id': payment.charge_id}
+    return {'plan': order.plan_id, 'expires_at': payment.expires_at, 'auto_renew': not order.subscription_canceled, 'charge_id': payment.charge_id, 'source': 'stars'}
+
+PLAN_RANK = {'START':1, 'PRO':2, 'ULTRA':3}
+
+def entitlement(db, uid):
+    paid = paid_entitlement(db, uid)
+    choices = [paid] if paid else []
+    at = now()
+    grants = db.scalars(select(AccessGrant).where(AccessGrant.user_id==uid, AccessGrant.revoked_at.is_(None), AccessGrant.starts_at<=at, AccessGrant.expires_at>at))
+    for grant in grants:
+        choices.append({'plan':grant.plan_id, 'expires_at':grant.expires_at, 'auto_renew':False,
+                        'source':'gift', 'grant_id':grant.id})
+    if not choices:return None
+    return max(choices,key=lambda x:(PLAN_RANK[x['plan']], x['expires_at'], x['source']=='stars'))
+
+def require_learning_enabled(user):
+    if user and user.is_blocked:
+        raise HTTPException(403,'Обучение приостановлено администратором. Профиль и управление оплатой остаются доступны')
 
 def require_paid(db, uid, ai=False):
+    require_learning_enabled(db.get(User, uid))
     sub = entitlement(db, uid)
     if not sub: raise HTTPException(402, 'Для продолжения нужна подписка')
     if ai and sub['plan'] == 'START': raise HTTPException(403, 'AI-наставник доступен в PRO и ULTRA')
     return sub
 
 async def checkout(db, user, plan_id):
+    require_learning_enabled(user)
     if not settings().commerce_enabled or not settings().support_contact:
         raise HTTPException(503, 'Продажи ещё не открыты. Владелец должен подключить бота, поддержку и утвердить условия')
     # Row lock makes two simultaneous checkout windows share one invoice.
     db.scalar(select(User).where(User.id == user.id).with_for_update())
-    if entitlement(db, user.id): raise HTTPException(409, 'Смена тарифа доступна после завершения оплаченного периода. Сначала отключите продление')
+    if entitlement(db, user.id): raise HTTPException(409, 'Подписка или подарок уже активны. Новая покупка доступна после окончания текущего доступа; продление Stars управляется в профиле')
     plan = db.get(Plan, plan_id)
     if not plan or not plan.enabled: raise HTTPException(404, 'Тариф недоступен')
     if plan_id != 'START':
@@ -124,7 +143,7 @@ def apply_payment(db, uid, payment):
     if payment.get('is_first_recurring'):
         if order.initial_charge_id and order.initial_charge_id != charge: raise HTTPException(409,'Повторная первая оплата по одному счёту')
         order.initial_charge_id = charge
-    active = entitlement(db,uid)
+    active = paid_entitlement(db,uid)
     overlaps = bool(active and db.get(Payment,active['charge_id']).order_id != order.id)
     db.add(Payment(charge_id=charge, order_id=order.id, user_id=uid, stars=order.stars, expires_at=expires, recurring=True,grants_access=not overlaps,refund_pending=overlaps))
     if overlaps:emit(db,uid,'payment_overlap_refund_pending',charge_id=charge)

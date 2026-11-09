@@ -54,7 +54,7 @@ async def configure_telegram():
                    allowed_updates=['message', 'pre_checkout_query'], drop_pending_updates=False)
     await setup_request('setChatMenuButton', menu_button={'type': 'web_app', 'text': 'LinguaQuest',
                                                    'web_app': {'url': url}})
-    commands = {'start': 'Начать приключение', 'app': 'Открыть приложение', 'profile': 'Мой прогресс',
+    commands = {'id': 'Мой Telegram ID', 'admin': 'Панель администратора', 'start': 'Начать приключение', 'app': 'Открыть приложение', 'profile': 'Мой прогресс',
                 'subscription': 'Подписка', 'referral': 'Пригласить друзей', 'settings': 'Настройки',
                 'help': 'Помощь', 'paysupport': 'Помощь с оплатой', 'privacy': 'Конфиденциальность', 'terms': 'Условия'}
     await setup_request('setMyCommands', commands=[{'command': k, 'description': v} for k, v in commands.items()])

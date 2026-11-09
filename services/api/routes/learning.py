@@ -6,7 +6,7 @@ from ..db import get_db
 from ..models import Attempt, User
 from ..security import current_user
 from ..services.learning import LESSONS, lesson_or_404, state, answer, complete, emit, all_lessons
-from ..services.payments import require_paid, entitlement
+from ..services.payments import require_paid, entitlement, require_learning_enabled
 router = APIRouter(tags=['Learning'])
 
 @router.get('/learning-path')
@@ -20,6 +20,7 @@ def path(user: User = Depends(current_user), db=Depends(get_db)):
     return [{'id': l['id'], 'title': l['title'], 'level': l['level'], 'chapter': l['chapter'], 'description': l['description'], 'minutes': l['minutes'], 'xp': l['xp'], 'free': l['free'], 'locked': not l['free'] and (sub is None or (l.get('tier')=='PRO' and sub['plan']=='START')), 'completed': l['id'] in completed} for l in ordered]
 
 def access(db, user, lesson):
+    require_learning_enabled(user)
     if not user.settings.get('onboarded'): raise HTTPException(409, 'Сначала сохраните учебную цель в профиле')
     if not lesson['free']: require_paid(db, user.id, ai=lesson.get('tier') == 'PRO')
 

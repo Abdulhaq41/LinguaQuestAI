@@ -18,6 +18,19 @@ def app_keyboard():
         [InlineKeyboardButton(text='💎 Подписка',web_app=WebAppInfo(url=url+'?section=plans')),InlineKeyboardButton(text='🎯 Мой прогресс',web_app=WebAppInfo(url=url+'?section=profile'))],
         [InlineKeyboardButton(text='👥 Пригласить друзей',web_app=WebAppInfo(url=url+'?section=learn&tool=referral')),InlineKeyboardButton(text='❓ Помощь',callback_data='help')]])
 
+@router.message(Command('id'))
+async def identity(message:Message):
+    if message.from_user:
+        await message.answer(f'Ваш Telegram ID: {message.from_user.id}\nЭто ID аккаунта, не токен. Для доступа владельца укажите его в ADMIN_TELEGRAM_IDS на хостинге.')
+
+@router.message(Command('admin'))
+async def admin_entry(message:Message):
+    if not message.from_user or message.from_user.id not in settings().admins:
+        await message.answer('Админка доступна только назначенным администраторам. Ваш ID можно посмотреть командой /id.')
+        return
+    keyboard=InlineKeyboardMarkup(inline_keyboard=[[InlineKeyboardButton(text='Панель администратора',web_app=WebAppInfo(url=settings().webapp_url.rstrip('/')+'?section=admin'))]])
+    await message.answer('Управление пользователями, подарочными подписками и контентом.',reply_markup=keyboard)
+
 @router.message(Command('start','app'))
 async def start(message:Message):
     text='🌍 Добро пожаловать в LinguaQuest AI!\n\nИзучай язык. Проживи приключение.\n🎮 Короткие игровые уроки\n✨ Личный прогресс и XP\n💎 Первый урок бесплатно, затем START: 89 Stars / 30 дней. Актуальная цена — в приложении.\n\nОткрой Mini App и познакомься с Lexi!'

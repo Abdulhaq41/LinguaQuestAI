@@ -14,7 +14,7 @@ router = APIRouter(prefix='/auth', tags=['Authentication'])
 class TelegramAuth(BaseModel):
     init_data: str = Field(max_length=16000)
 
-def login(db, response, uid, name, referral=None):
+def login(db, response, uid, name, referral=None, username=None):
     user = db.get(User, uid)
     if not user:
         user = User(id=uid, name=name[:100], settings={'referral_code':secrets.token_urlsafe(12)})
@@ -27,6 +27,8 @@ def login(db, response, uid, name, referral=None):
         user.settings={'referral_code':secrets.token_urlsafe(12)}
     if not user.settings.get('referral_code'):
         user.settings={**user.settings,'referral_code':secrets.token_urlsafe(12)}
+    if username is not None:
+        user.settings={**user.settings,'telegram_username':str(username)[:64]}
     response.set_cookie('lq_session', new_session(db, uid), max_age=86400, httponly=True, secure=settings().production, samesite='lax', path='/')
     emit(db, uid, 'app_opened')
     return {'id': uid, 'name': user.name}
@@ -35,7 +37,7 @@ def login(db, response, uid, name, referral=None):
 def authenticate(body: TelegramAuth, response: Response, db: Session = Depends(get_db)):
     if not settings().bot_token: raise HTTPException(503, 'Бот ещё не настроен')
     user = verify_init_data(body.init_data, settings().bot_token)
-    return login(db, response, user['id'], user.get('first_name', 'Explorer'),parse_qs(body.init_data).get('start_param',[None])[0])
+    return login(db, response, user['id'], user.get('first_name', 'Explorer'),parse_qs(body.init_data).get('start_param',[None])[0],user.get('username',''))
 
 @router.post('/dev')
 def dev(response: Response, db: Session = Depends(get_db)):

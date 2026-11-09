@@ -3,16 +3,19 @@ from pydantic import BaseModel, Field
 from sqlalchemy import select, func
 from ..security import admin_user
 from ..db import get_db
-from ..models import User, Payment, Plan, Event, AIUsage, Order, now
+from ..models import User, Payment, Plan, Event, AIUsage, Order, AccessGrant, Attempt, now
 from ..services.payments import telegram
 from ..services.learning import emit
+from ..services.administration import audit
 router=APIRouter(prefix='/admin',tags=['Administration'])
 
 @router.get('/dashboard')
 def dashboard(admin=Depends(admin_user),db=Depends(get_db)):
     active_events=['app_opened','lesson_started','ai_session_completed']
     activity={label:db.scalar(select(func.count(func.distinct(Event.user_id))).where(Event.kind.in_(active_events),Event.created_at>=now()-days*86400)) for label,days in [('DAU',1),('WAU',7),('MAU',30)]}
-    return {'activity':activity,'users':db.scalar(select(func.count()).select_from(User)), 'gross_stars':db.scalar(select(func.coalesce(func.sum(Payment.stars),0))), 'active_subscribers':db.scalar(select(func.count(func.distinct(Payment.user_id))).where(Payment.expires_at>now(),Payment.refunded.is_(False),Payment.grants_access.is_(True))), 'ai_estimated_usd':db.scalar(select(func.coalesce(func.sum(AIUsage.estimated_usd),0))), 'events':[{'event':kind,'count':count} for kind,count in db.execute(select(Event.kind,func.count()).group_by(Event.kind))], 'note':'Доход в Stars без гарантированного курса вывода. AI-расход — оценка по настроенным ценам, не счёт провайдера.'}
+    gifted=db.scalar(select(func.count(func.distinct(AccessGrant.user_id))).where(AccessGrant.revoked_at.is_(None),AccessGrant.starts_at<=now(),AccessGrant.expires_at>now()))
+    refunded=db.scalar(select(func.coalesce(func.sum(Payment.stars),0)).where(Payment.refunded.is_(True)))
+    return {'active_gift_users':gifted,'refunded_stars':refunded,'registered_users':db.scalar(select(func.count()).select_from(User).where(User.settings['deleted'].as_boolean().is_not(True))),'completed_attempts':db.scalar(select(func.count()).select_from(Attempt).where(Attempt.completed_at.is_not(None))),'activity':activity,'users':db.scalar(select(func.count()).select_from(User)), 'gross_stars':db.scalar(select(func.coalesce(func.sum(Payment.stars),0))), 'active_subscribers':db.scalar(select(func.count(func.distinct(Payment.user_id))).where(Payment.expires_at>now(),Payment.refunded.is_(False),Payment.grants_access.is_(True))), 'ai_estimated_usd':db.scalar(select(func.coalesce(func.sum(AIUsage.estimated_usd),0))), 'events':[{'event':kind,'count':count} for kind,count in db.execute(select(Event.kind,func.count()).group_by(Event.kind))], 'note':'Доход в Stars без гарантированного курса вывода. AI-расход — оценка по настроенным ценам, не счёт провайдера.'}
 
 @router.get('/payments')
 def payments(admin=Depends(admin_user),db=Depends(get_db)):
@@ -20,12 +23,15 @@ def payments(admin=Depends(admin_user),db=Depends(get_db)):
 
 class Price(BaseModel):
     stars:int=Field(ge=1,le=10000)
+    enabled:bool | None=None
 @router.patch('/plans/{plan_id}')
 def price(plan_id:str,body:Price,admin=Depends(admin_user),db=Depends(get_db)):
-    plan=db.get(Plan,plan_id)
+    plan=db.scalar(select(Plan).where(Plan.id==plan_id).with_for_update(key_share=True))
     if not plan: raise HTTPException(404)
     old=plan.stars
     plan.stars=body.stars
+    if body.enabled is not None:plan.enabled=body.enabled
+    audit(db,admin,'plan_changed',inputs={'plan':plan.id,'stars':plan.stars,'enabled':plan.enabled},result={'previous_stars':old})
     emit(db,admin.id,'admin_price_changed',plan=plan.id,old=old,new=plan.stars)
     return {'ok':True,'note':'Уже выставленные счета и действующие подписки сохраняют исходную цену'}
 
@@ -47,6 +53,7 @@ async def refund(body:Refund,admin=Depends(admin_user),db=Depends(get_db)):
     from ..services.referrals import revoke
     revoke(db,payment.charge_id)
     emit(db,admin.id,'admin_refund',charge_id=payment.charge_id)
+    audit(db,admin,'payment_refunded',payment.user_id,inputs={'charge_id':payment.charge_id,'stars':payment.stars})
     return {'ok':True}
 
 class ExerciseContent(BaseModel):
@@ -94,11 +101,12 @@ def edit_lesson(lesson_id:str,body:ContentEdit,admin=Depends(admin_user),db=Depe
         if not all(answer.strip() for answer in exercise.answers):raise HTTPException(422,'Пустые правильные ответы запрещены')
         if exercise.type in ('choice','gap','dialogue') and (not exercise.choices or not set(exercise.answers)<=set(exercise.choices)):
             raise HTTPException(422,'Для выбора ответа нужны варианты, содержащие все правильные ответы')
-    db.scalar(select(Plan).where(Plan.id=='START').with_for_update())
+    db.scalar(select(Plan).where(Plan.id=='START').with_for_update(key_share=True))
     latest=db.scalar(select(ContentVersion).where(ContentVersion.lesson_id==lesson_id).order_by(ContentVersion.version.desc()).limit(1))
     version=latest.version if latest else 0
     if body.expected_version!=version:raise HTTPException(409,'Контент изменён другим администратором. Перезагрузите список')
     content=body.content.model_dump(exclude_none=True)
     db.add(ContentVersion(id=str(uuid.uuid4()),lesson_id=lesson_id,version=version+1,content=content,admin_id=admin.id,created_at=now()))
     emit(db,admin.id,'admin_content_changed',lesson=lesson_id,version=version+1)
+    audit(db,admin,'content_changed',inputs={'lesson_id':lesson_id,'version':version+1})
     return {'ok':True,'version':version+1}

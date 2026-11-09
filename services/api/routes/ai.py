@@ -5,7 +5,7 @@ from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel, Field
 from sqlalchemy import select, func
 from ..db import get_db
-from ..models import AIUsage, AIMessage, User, Event, now
+from ..models import AIUsage, AIMessage, User, Event, AppSetting, now
 from ..security import current_user
 from ..config import settings
 from ..services.payments import require_paid
@@ -22,6 +22,8 @@ def history(user=Depends(current_user),db=Depends(get_db)):
 @router.post('/tutor')
 async def tutor(body:Question,user=Depends(current_user),db=Depends(get_db)):
     require_paid(db,user.id,ai=True)
+    flag=db.get(AppSetting,'ai_paused')
+    if flag and flag.value.get('paused'):raise HTTPException(503,'AI временно приостановлен администратором. Лимит не списан')
     if not settings().ai_enabled or not settings().ai_api_key:raise HTTPException(503,'AI-наставник ещё не подключён. Лимит не списан')
     if not user.settings.get('ai_consent'):raise HTTPException(409,'Разрешите передачу текста AI-провайдеру в профиле')
     db.scalar(select(User).where(User.id==user.id).with_for_update())

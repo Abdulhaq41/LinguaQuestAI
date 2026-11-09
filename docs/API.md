@@ -14,7 +14,10 @@
 | AI | GET /api/ai/history; POST /api/ai/tutor {request_id:UUID,message} |
 | Referrals | GET /api/referrals/me |
 | Analytics | POST /api/events {kind,plan?}, только app_opened/paywall_viewed/plan_selected |
-| Admin | GET /api/admin/dashboard; GET /api/admin/payments; PATCH /api/admin/plans/{id} {stars}; POST /api/admin/refund {charge_id}; GET /api/admin/lessons; PUT /api/admin/lessons/{id} {expected_version,content} |
+| Admin | GET /api/admin/dashboard; GET /api/admin/payments; PATCH /api/admin/plans/{id} {stars,enabled?}; POST /api/admin/refund {charge_id}; GET /api/admin/lessons; PUT /api/admin/lessons/{id} {expected_version,content} |
+| Admin users | GET /api/admin/users?q=&status=&offset=; GET /api/admin/users/{id}; POST /api/admin/users/{id}/learning-status; POST /api/admin/users/{id}/revoke-sessions; POST /api/admin/users/{id}/coins |
+| Admin gifts | GET/POST /api/admin/grants; POST /api/admin/grants/{id}/extend; POST /api/admin/grants/{id}/revoke |
+| Admin operations | GET /api/admin/audit; GET /api/admin/system; POST /api/admin/system/ai-pause; GET /api/admin/plans; GET /api/admin/export/{users or payments}.csv |
 | Telegram | POST /api/telegram/webhook, только secret header, не cookie |
 | Operations | GET /api/health; GET /api/config |
 
@@ -23,3 +26,7 @@
 Правильные ответы не выдаются до отправки ответа на конкретный вопрос. Повтор отправки того же ответа идемпотентен; другой ответ на уже сохранённый индекс — 409. XP за идентификатор урока начисляются один раз при результате >=70%. Повторные уроки остаются доступны без дополнительной платы в рамках соответствующего доступа.
 
 Платёжных browser-endpoints вида «активировать тариф» нет. Только authenticated Telegram webhook может записать подтверждённый charge. Тесты вызывают внутренний payment service с синтетическими событиями — это не публичный маршрут.
+
+Новые административные POST-запросы требуют `request_id: UUID` и `reason` (3–500 символов). Повтор с теми же параметрами возвращает исходный результат, изменение параметров с прежним UUID — 409. Выдача подарка: `{user_id,plan:START|PRO|ULTRA,days:1..3650,reason,request_id}`; продление — `{days,reason,request_id}`. Изменение монет — `delta` от −10000 до 10000; пауза обучения — `blocked`, пауза AI — `paused`. Все эти действия проверяются сервером через ADMIN_TELEGRAM_IDS и записываются в административный журнал. [Правила подарков](ADMIN.md).
+
+Профиль возвращает `is_admin`, `learning_paused`, эффективный `subscription` (source: gift или stars) и отдельный `paid_subscription`. Подарок не создаёт Order/Payment, не меняет списания Stars и не начисляет реферальный бонус.

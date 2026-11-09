@@ -7,7 +7,8 @@ from sqlalchemy import select, func, delete
 from ..db import get_db
 from ..models import User, Attempt, Reward, Payment, Order, Event, Session, AIMessage, AIUsage, now
 from ..security import current_user
-from ..services.payments import entitlement
+from ..services.payments import entitlement, paid_entitlement
+from ..config import settings
 from ..services.learning import emit
 
 router = APIRouter(tags=['Account'])
@@ -45,7 +46,7 @@ def progress(db, user):
 
 @router.get('/users/me')
 def me(user: User=Depends(current_user), db=Depends(get_db)):
-    return {'id':user.id, 'name':user.name, 'xp':user.xp, 'coins':user.coins, 'level':1+user.xp//200, 'settings':user.settings, 'subscription':entitlement(db,user.id), 'progress':progress(db,user), 'route': {'level':'A1', 'note':'Стартовый маршрут, без сертифицированной оценки CEFR', 'focus':{'travel':'Знакомство → кафе → путешествие', 'work':'Знакомство → рабочий день → планы', 'study':'Знакомство → распорядок → прошлое', 'conversation':'Знакомство → кафе → диалоги'}.get(user.settings.get('goal'),'Знакомство → кафе')}}
+    return {'id':user.id, 'name':user.name, 'is_admin':user.id in settings().admins, 'learning_paused':user.is_blocked, 'paid_subscription':paid_entitlement(db,user.id), 'xp':user.xp, 'coins':user.coins, 'level':1+user.xp//200, 'settings':user.settings, 'subscription':entitlement(db,user.id), 'progress':progress(db,user), 'route': {'level':'A1', 'note':'Стартовый маршрут, без сертифицированной оценки CEFR', 'focus':{'travel':'Знакомство → кафе → путешествие', 'work':'Знакомство → рабочий день → планы', 'study':'Знакомство → распорядок → прошлое', 'conversation':'Знакомство → кафе → диалоги'}.get(user.settings.get('goal'),'Знакомство → кафе')}}
 
 @router.patch('/users/me/settings')
 def update(body:Preferences, user:User=Depends(current_user), db=Depends(get_db)):
@@ -63,7 +64,7 @@ def leaderboard(user:User=Depends(current_user), db=Depends(get_db)):
     visible=[]
     for uid,name,xp in rows:
         member=db.get(User,uid)
-        if member.settings.get('public_profile'):
+        if member.settings.get('public_profile') and not member.is_blocked:
             visible.append({'name':name,'xp':xp,'me':uid==user.id})
     visible.sort(key=lambda x:-x['xp'])
     for row in visible: row['rank']=1+sum(other['xp']>row['xp'] for other in visible)
@@ -75,7 +76,7 @@ def export(user:User=Depends(current_user),db=Depends(get_db)):
 
 @router.delete('/users/me')
 def erase(user:User=Depends(current_user), db=Depends(get_db)):
-    sub=entitlement(db,user.id)
+    sub=paid_entitlement(db,user.id)
     if sub and sub['auto_renew']: raise HTTPException(409,'Сначала отключите автопродление в профиле')
     for model in (Session, Attempt, Reward, AIMessage, AIUsage):
         db.execute(delete(model).where(model.user_id==user.id))
@@ -83,6 +84,9 @@ def erase(user:User=Depends(current_user), db=Depends(get_db)):
     from ..models import Assessment, Word, Review, Achievement, Cosmetic, StoryProgress, Notification
     for model in (Assessment, Review, Word, Achievement, Cosmetic, StoryProgress, Notification):
         db.execute(delete(model).where(model.user_id == user.id))
+    from ..models import AccessGrant
+    for grant in db.scalars(select(AccessGrant).where(AccessGrant.user_id==user.id,AccessGrant.revoked_at.is_(None))):
+        grant.revoked_at=now();grant.revoke_reason='Account deletion requested by recipient'
     # Retain only financial records and a pseudonymous key for accounting and duplicate protection.
     user.name='Deleted account'
     user.settings={'deleted':True}

@@ -1,12 +1,13 @@
 import secrets, time
 from collections import defaultdict, deque
 from contextlib import asynccontextmanager
-from fastapi import FastAPI, Request, HTTPException
+from fastapi import FastAPI, Request, HTTPException, Depends
 from fastapi.responses import JSONResponse
 from aiogram import Bot
 from aiogram.types import Update
 from .config import settings
-from .routes import auth, users, learning, subscriptions, admin, ai, game, assessment, referrals, analytics
+from .db import get_db
+from .routes import auth, users, learning, subscriptions, admin, ai, game, assessment, referrals, analytics, admin_tools
 
 @asynccontextmanager
 async def lifespan(app):
@@ -20,7 +21,7 @@ async def lifespan(app):
     yield
 
 app=FastAPI(title='LinguaQuest AI',version='0.1.0',lifespan=lifespan)
-for router in (auth.router,users.router,learning.router,subscriptions.router,admin.router,ai.router,game.router,assessment.router,referrals.router,analytics.router):app.include_router(router,prefix='/api')
+for router in (auth.router,users.router,learning.router,subscriptions.router,admin.router,ai.router,game.router,assessment.router,referrals.router,analytics.router,admin_tools.router):app.include_router(router,prefix='/api')
 limits=defaultdict(deque)
 
 @app.middleware('http')
@@ -58,9 +59,11 @@ def health():
     return {'status':'ok'}
 
 @app.get('/api/config')
-def config():
+def config(db=Depends(get_db)):
+    from .models import AppSetting
+    flag=db.get(AppSetting,'ai_paused')
     cfg=settings()
-    return {'development':not cfg.production,'dev_auth':not cfg.production and cfg.enable_dev_auth,'telegram_connected':bool(cfg.bot_token),'ai_connected':cfg.ai_enabled and bool(cfg.ai_api_key),'voice_available':False,'support_contact':cfg.support_contact,'bot_username':cfg.bot_username}
+    return {'development':not cfg.production,'dev_auth':not cfg.production and cfg.enable_dev_auth,'telegram_connected':bool(cfg.bot_token),'ai_connected':cfg.ai_enabled and bool(cfg.ai_api_key) and not (flag and flag.value.get('paused')),'voice_available':False,'support_contact':cfg.support_contact,'bot_username':cfg.bot_username}
 
 _dp=None
 @app.post('/api/telegram/webhook',include_in_schema=False)

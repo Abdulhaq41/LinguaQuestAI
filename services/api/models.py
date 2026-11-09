@@ -9,6 +9,8 @@ class User(Base):
     __tablename__ = 'users'
     id: Mapped[int] = mapped_column(BigInteger, primary_key=True, autoincrement=False)
     name: Mapped[str] = mapped_column(String(100))
+    is_blocked: Mapped[bool] = mapped_column(default=False)
+    block_reason: Mapped[str | None] = mapped_column(String(500))
     settings: Mapped[dict] = mapped_column(JSON, default=dict)
     xp: Mapped[int] = mapped_column(default=0)
     coins: Mapped[int] = mapped_column(default=0)
@@ -185,3 +187,33 @@ class ContentVersion(Base):
     content: Mapped[dict] = mapped_column(JSON)
     admin_id: Mapped[int] = mapped_column(ForeignKey('users.id'))
     created_at: Mapped[int] = mapped_column(default=now)
+
+class AccessGrant(Base):
+    __tablename__ = 'access_grants'
+    id: Mapped[str] = mapped_column(String(36), primary_key=True)
+    user_id: Mapped[int] = mapped_column(ForeignKey('users.id'), index=True)
+    plan_id: Mapped[str] = mapped_column(ForeignKey('subscription_plans.id'))
+    created_by: Mapped[int] = mapped_column(ForeignKey('users.id'))
+    reason: Mapped[str] = mapped_column(String(500))
+    starts_at: Mapped[int] = mapped_column(BigInteger, default=now)
+    expires_at: Mapped[int] = mapped_column(BigInteger, index=True)
+    created_at: Mapped[int] = mapped_column(BigInteger, default=now)
+    revoked_at: Mapped[int | None] = mapped_column(BigInteger)
+    revoked_by: Mapped[int | None] = mapped_column(ForeignKey('users.id'))
+    revoke_reason: Mapped[str | None] = mapped_column(String(500))
+
+class AdminAudit(Base):
+    __tablename__ = 'admin_audit_logs'
+    id: Mapped[str] = mapped_column(String(36), primary_key=True)
+    actor_id: Mapped[int] = mapped_column(ForeignKey('users.id'), index=True)
+    target_id: Mapped[int | None] = mapped_column(ForeignKey('users.id'), index=True)
+    action: Mapped[str] = mapped_column(String(80), index=True)
+    details: Mapped[dict] = mapped_column(JSON)
+    created_at: Mapped[int] = mapped_column(BigInteger, default=now, index=True)
+
+class AppSetting(Base):
+    __tablename__ = 'app_settings'
+    key: Mapped[str] = mapped_column(String(80), primary_key=True)
+    value: Mapped[dict] = mapped_column(JSON)
+    updated_by: Mapped[int] = mapped_column(ForeignKey('users.id'))
+    updated_at: Mapped[int] = mapped_column(BigInteger, default=now)
