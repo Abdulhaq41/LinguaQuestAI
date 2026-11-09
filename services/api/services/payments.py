@@ -8,17 +8,59 @@ from .learning import emit
 
 PERIOD = 2592000
 
+class TelegramRequestError(HTTPException):
+    """Safe metadata only: provider text and credential-bearing URLs stay private."""
+    def __init__(self, reason, upstream_status=None, retry_after=None):
+        super().__init__(502, 'Telegram временно недоступен. Попробуйте позже')
+        self.reason = reason
+        self.upstream_status = upstream_status
+        self.retry_after = retry_after
+
+
 async def telegram(method, **data):
     if not settings().bot_token: raise HTTPException(503, 'Telegram ещё не подключён')
     try:
         async with httpx.AsyncClient(timeout=15) as client:
             response = await client.post(f'https://api.telegram.org/bot{settings().bot_token}/{method}', json=data)
+    except httpx.InvalidURL:
+        raise TelegramRequestError('invalid_bot_token_format') from None
+    except httpx.TimeoutException:
+        raise TelegramRequestError('request_timeout') from None
+    except httpx.HTTPError:
+        raise TelegramRequestError('network_error') from None
+    try:
         payload = response.json()
-        if response.status_code != 200 or not payload.get('ok'): raise ValueError('Telegram request rejected')
+    except ValueError:
+        payload = {}
+    if not isinstance(payload, dict):
+        payload = {}
+    status = response.status_code
+    if status == 200 and payload.get('ok') is True and 'result' in payload:
         return payload['result']
-    except (httpx.HTTPError, ValueError):
-        # Never log response URLs containing the bot token.
-        raise HTTPException(502, 'Telegram временно недоступен. Попробуйте позже')
+    description = payload.get('description', '')
+    description = description.casefold() if isinstance(description, str) else ''
+    reason = {401: 'invalid_bot_token', 403: 'telegram_forbidden',
+              404: 'bot_api_not_found', 429: 'rate_limited'}.get(status)
+    if status >= 500:
+        reason = 'telegram_unavailable'
+    if status == 400:
+        if 'secret token' in description:
+            reason = 'invalid_webhook_secret'
+        elif 'bad webhook' in description:
+            reason = 'webhook_rejected'
+            if 'resolve' in description:
+                reason = 'webhook_dns_error'
+            elif 'ssl' in description or 'certificate' in description:
+                reason = 'webhook_tls_error'
+    parameters = payload.get('parameters', {})
+    retry_after = parameters.get('retry_after') if isinstance(parameters, dict) else None
+    if not isinstance(retry_after, int) or isinstance(retry_after, bool) or retry_after < 1:
+        header = response.headers.get('Retry-After', '')
+        retry_after = int(header) if header.isdigit() and int(header) > 0 else None
+    if reason is None:
+        reason = 'invalid_response' if not payload else 'request_rejected'
+    raise TelegramRequestError(reason,
+                               upstream_status=status, retry_after=retry_after) from None
 
 def entitlement(db, uid):
     payment = db.scalar(select(Payment).where(Payment.user_id == uid, Payment.refunded.is_(False), Payment.grants_access.is_(True), Payment.expires_at > now()).order_by(Payment.expires_at.desc()))

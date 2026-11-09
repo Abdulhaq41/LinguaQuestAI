@@ -2,42 +2,69 @@
 import asyncio
 import logging
 import os
+import re
 from contextlib import asynccontextmanager, suppress
 from pathlib import Path
 from fastapi import FastAPI
 from fastapi.staticfiles import StaticFiles
 from .config import settings
-from .services.payments import telegram
+from .services.payments import telegram, TelegramRequestError
 
 logger = logging.getLogger(__name__)
 DEPLOYMENT = {'telegram': 'not_configured'}
 
+class TelegramSetupError(RuntimeError):
+    def __init__(self, reason, message):
+        super().__init__(message)
+        self.reason = reason
+
+
+def set_deployment(status, **metadata):
+    DEPLOYMENT.clear()
+    DEPLOYMENT.update(telegram=status, **metadata)
+
+
+async def setup_request(method, **data):
+    DEPLOYMENT['step'] = method
+    result = await telegram(method, **data)
+    if method != 'getMe' and result is not True:
+        raise TelegramSetupError('configuration_not_confirmed', 'Telegram did not confirm configuration')
+    return result
+
+
 async def configure_telegram():
     cfg = settings()
     if not cfg.bot_token:
-        DEPLOYMENT['telegram'] = 'not_configured'
+        set_deployment('not_configured', error='missing_bot_token', step='configuration')
         return
-    if not cfg.bot_username or not cfg.webapp_url.startswith('https://') or len(cfg.webhook_secret) < 32:
-        raise RuntimeError('BOT_USERNAME, HTTPS WEBAPP_URL and WEBHOOK_SECRET are required')
-    identity = await telegram('getMe')
+    DEPLOYMENT['step'] = 'configuration'
+    if not cfg.bot_username:
+        raise TelegramSetupError('missing_bot_username', 'BOT_USERNAME is required')
+    if not cfg.webapp_url.startswith('https://'):
+        raise TelegramSetupError('https_url_required', 'HTTPS WEBAPP_URL is required')
+    if len(cfg.webhook_secret) < 32:
+        raise TelegramSetupError('weak_webhook_secret', 'WEBHOOK_SECRET requires at least 32 characters')
+    identity = await setup_request('getMe')
+    if not isinstance(identity, dict) or not isinstance(identity.get('username'), str):
+        raise TelegramSetupError('invalid_bot_identity', 'Bot API returned an invalid identity')
     if identity.get('username', '').casefold() != cfg.bot_username.lstrip('@').casefold():
-        raise RuntimeError('BOT_USERNAME does not match the configured bot')
+        raise TelegramSetupError('bot_username_mismatch', 'BOT_USERNAME does not match the configured bot')
     url = cfg.webapp_url.rstrip('/')
-    await telegram('setWebhook', url=url+'/api/telegram/webhook', secret_token=cfg.webhook_secret,
+    await setup_request('setWebhook', url=url+'/api/telegram/webhook', secret_token=cfg.webhook_secret,
                    allowed_updates=['message', 'pre_checkout_query'], drop_pending_updates=False)
-    await telegram('setChatMenuButton', menu_button={'type': 'web_app', 'text': 'LinguaQuest',
+    await setup_request('setChatMenuButton', menu_button={'type': 'web_app', 'text': 'LinguaQuest',
                                                    'web_app': {'url': url}})
     commands = {'start': 'Начать приключение', 'app': 'Открыть приложение', 'profile': 'Мой прогресс',
                 'subscription': 'Подписка', 'referral': 'Пригласить друзей', 'settings': 'Настройки',
                 'help': 'Помощь', 'paysupport': 'Помощь с оплатой', 'privacy': 'Конфиденциальность', 'terms': 'Условия'}
-    await telegram('setMyCommands', commands=[{'command': k, 'description': v} for k, v in commands.items()])
-    DEPLOYMENT['telegram'] = 'ready'
+    await setup_request('setMyCommands', commands=[{'command': k, 'description': v} for k, v in commands.items()])
+    set_deployment('ready')
     logger.info('Telegram webhook and Mini App menu configured')
 
 async def configure_after_start():
     # Lifespan must return before Telegram can connect to the public webhook.
     import httpx
-    DEPLOYMENT['telegram'] = 'pending'
+    set_deployment('pending', step='health_check')
     async with httpx.AsyncClient(trust_env=False, timeout=3) as client:
         for _ in range(60):
             try:
@@ -48,18 +75,37 @@ async def configure_after_start():
                 pass
             await asyncio.sleep(1)
         else:
-            DEPLOYMENT['telegram'] = 'failed'
+            set_deployment('failed', step='health_check', error='local_api_not_ready')
             logger.error('Local API readiness failed before Telegram setup')
             return
-    for delay in (2, 5, 15, 30, 60):
+    retry_delays = (2, 5, 15, 30)
+    for attempt in range(1, 6):
         try:
             await configure_telegram()
             return
+        except TelegramSetupError as exc:
+            set_deployment('failed', step=DEPLOYMENT.get('step', 'configuration'), error=exc.reason)
+            logger.error('Telegram setup stopped: reason=%s', exc.reason)
+            return
+        except TelegramRequestError as exc:
+            permanent = exc.reason in {'invalid_bot_token', 'invalid_bot_token_format', 'telegram_forbidden', 'bot_api_not_found',
+                                       'invalid_webhook_secret', 'request_rejected'}
+            final = permanent or attempt == 5
+            metadata = {'step': DEPLOYMENT.get('step', 'unknown'), 'error': exc.reason, 'attempt': attempt}
+            if exc.upstream_status is not None:
+                metadata['http_status'] = exc.upstream_status
+            set_deployment('failed' if final else 'pending', **metadata)
+            logger.warning('Telegram setup: step=%s reason=%s attempt=%s',
+                           metadata['step'], exc.reason, attempt)
+            if final:
+                return
+            # Honor Telegram's Retry-After rather than repeating immediately.
+            await asyncio.sleep(max(retry_delays[attempt-1], exc.retry_after or 0))
         except Exception:
-            # Never print provider exceptions: their URLs can include the bot token.
-            logger.warning('Telegram setup failed; check token, bot username and public HTTPS availability')
-            await asyncio.sleep(delay)
-    DEPLOYMENT['telegram'] = 'failed'
+            # Never include provider exceptions or request data in logs or public status.
+            set_deployment('failed', step=DEPLOYMENT.get('step', 'unknown'), error='internal_setup_error')
+            logger.error('Telegram setup failed with an internal error')
+            return
 
 
 def attach_frontend(app: FastAPI, root: Path):
@@ -73,6 +119,8 @@ def attach_frontend(app: FastAPI, root: Path):
             task = None
             if os.environ.get('AUTO_CONFIGURE_BOT', 'false').lower() == 'true':
                 task = asyncio.create_task(configure_after_start())
+            else:
+                set_deployment('not_configured', error='auto_configuration_disabled')
             try:
                 yield
             finally:
@@ -98,7 +146,11 @@ def attach_frontend(app: FastAPI, root: Path):
 
     @app.get('/api/deployment/status')
     def deployment_status():
-        return dict(DEPLOYMENT)
+        result = dict(DEPLOYMENT)
+        revision = os.environ.get('RENDER_GIT_COMMIT', '')
+        if result['telegram'] != 'ready' and re.fullmatch(r'[0-9a-fA-F]{7,64}', revision):
+            result['revision'] = revision[:7]
+        return result
 
     # Keep API routes before StaticFiles. Source content with answers is never served.
     app.mount('/', StaticFiles(directory=root, html=True), name='miniapp')
